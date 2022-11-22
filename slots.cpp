@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <time.h>
 #include <conio.h>
+#include <windows.h>
 
 using namespace std;
 
@@ -22,17 +23,15 @@ void spin(){
 }
 
 int sol(){
-    int freq[10] = {0}, i, castig;
+    int freq[10] = {0}, i, castig=0;
     for(i=0;i<3;i++)
         freq[cr_spin[i]]++;
     for(i=0;i<10;i++){
         if(freq[i] == 3){
             castig += (i+1)*3;
-            cout << "\nai castigat " << castig;
             return castig;
         }else if(freq[i] == 2){
             castig += (i+1)*2;
-            cout << "\nai castigat " << castig;
             return castig;
         }
     }
@@ -40,14 +39,20 @@ int sol(){
 }
 
 void dublaj(int &cs){
-    int ok=1, pip, ch;
-    cout << "\n";
+    int ok=1, pip, ch, i, istoric[20] = {0}, n=7;
+    for(i=0;i<n;i++)istoric[i] = suits[rand()%2];
     while(ok){
+        system("cls");
+        cout << "CASTIG: " << cs << "\n";
+        for(i=0;i<n;i++)cout << (char)istoric[i] << " ";
+        cout << "\n---------------\n";
         pip = rand()%2;
         ch = getch();
         switch(ch){
         case 'a':
+            cout << (char)suits[pip] << " ";
             if(!pip){
+                istoric[n++] = 3;
                 cs *= 2;
 
             }else{
@@ -56,7 +61,9 @@ void dublaj(int &cs){
             }
             break;
         case 'd':
+            cout << (char)suits[pip] << " ";
             if(pip){
+                istoric[n++] = 5;
                 cs *= 2;
             }else{
                 cs = 0;
@@ -66,9 +73,17 @@ void dublaj(int &cs){
         case 'x':
             ok = 0;
         }
-        cout << (char)suits[pip] << " ";
 
     }
+}
+
+void spin_screen(int w){
+    int i;
+    system("cls");
+    cout << "BANI: " << money << "\n";
+    if(w)spin();
+    for(i=0;i<3;i++)
+          cout << (char)a[cr_spin[i]] << " ";
 }
 
 int main(){
@@ -76,24 +91,29 @@ int main(){
     int i, cs;
     char ch;
     while(true){
-        if(money <= 0)return 1;
+        if(money < 5)return 1;
         ch = getch();
         switch(ch){
         case 'x':
             return 1;
         case 's':
-            system("cls");
             money -= 5;
-            cout << "BANI: " << money << "\n";
-            spin();
-            cout << "\r";
-            for(i=0;i<3;i++){
+            for(i=0;i<3;i++)
                 cr_spin[i] = rand()%10;
-                cout << (char)a[cr_spin[i]] << " ";
-            }
+            spin_screen(1);
             cs = sol();
-            if(cs)dublaj(cs);
-            money += cs;
+            if(cs){
+                cout << "\nCASTIG: " << cs;
+                cout << "\ndublaj? (e/orice alta tasta)";
+                ch = getch();
+                if(cs && ch == 'e'){
+                    dublaj(cs);
+                    Sleep(1000);
+                    spin_screen(0);
+                    cout << "\nCASTIG: " << cs;
+                }
+                money += cs;
+            }
         }
     }
 
